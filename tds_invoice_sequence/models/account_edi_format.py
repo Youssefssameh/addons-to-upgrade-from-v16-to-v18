@@ -1,6 +1,4 @@
 from odoo import api, models
-import logging
-
 
 class AccountEdiFormat(models.Model):
     _inherit = "account.edi.format"
@@ -12,7 +10,7 @@ class AccountEdiFormat(models.Model):
             tax = tax_values["tax_repartition_line"].tax_id
             return {"l10n_eg_eta_code": tax.l10n_eg_eta_code.split("_")[0]}
 
-        # 1) تاريخ الإصدار: invoice.invoice_date ممكن تكون False قبل الـ Post
+        # 1) Issue datetime: invoice.invoice_date can be False before posting.
         dt = invoice.invoice_date or invoice.date
         date_string = dt.strftime("%Y-%m-%dT%H:%M:%SZ") if dt else False
 
@@ -23,7 +21,7 @@ class AccountEdiFormat(models.Model):
             invoice, grouped_taxes["tax_details_per_record"]
         )
 
-        # 2) internalID: invoice.name قبل الـ Post غالبًا "/" فنعمل fallback آمن
+        # 2) internalID: invoice.name is usually "/" before posting, so use a safe fallback.
         if invoice.name and invoice.name != "/":
             internal_id = invoice.name.split("/")[-1]
         else:
@@ -62,8 +60,5 @@ class AccountEdiFormat(models.Model):
             eta_invoice["purchaseOrderReference"] = invoice.ref
         if invoice.invoice_origin:
             eta_invoice["salesOrderReference"] = invoice.invoice_origin
-        _logger = logging.getLogger(__name__)
-        _logger.info("TDS: ETA prepare called, invoice=%s, name=%s", invoice.id, invoice.name)
+
         return eta_invoice
-
-
