@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import date, datetime
+from datetime import datetime
 from odoo import models, fields, api
 
 
@@ -13,15 +13,13 @@ class ProductProduct(models.Model):
         required=False)
 
     def set_quantity_in(self, start_date, end_date):
-        today = date.today()
         if not end_date:
-            end_date = today
+            end_date = fields.Datetime.now()
 
         print('start date before >>>', start_date)
         if not start_date:
             print('no start date')
-            start_date_str = '1900-01-01'
-            start_date = datetime.strptime(start_date_str, "%d-%B-%Y")
+            start_date = datetime(1900,1,1)
 
         print('start date after >>>', start_date)
         if start_date and end_date:

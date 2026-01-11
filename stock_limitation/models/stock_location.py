@@ -11,19 +11,14 @@ class stock_location(models.Model):
 
     @api.depends("own_user_ids", "location_id.own_user_ids", "location_id.user_ids")
     def _compute_user_ids(self):
-        """
-        user_ids = (مستخدمين الأب computed) + (مستخدمين هذه الـ location مباشرة)
-        """
+        
         Users = self.env["res.users"]
         for loc in self:
             parent_users = loc.location_id.user_ids if loc.location_id else Users
             loc.user_ids = parent_users | loc.own_user_ids
 
     def _inverse_own_user_ids(self):
-        """
-        عند تعديل own_user_ids:
-        نعمل recompute لــ user_ids لكل الأطفال (بدون recursion يدوي).
-        """
+        
         for loc in self.sudo():
             children = self.env["stock.location"].search([("location_id", "child_of", loc.id)])
             children._compute_user_ids()
@@ -48,8 +43,3 @@ class stock_location(models.Model):
         store=True,
     )
 
-    def name_get(self):
-        """
-        To avoid security rights issues in name_get
-        """
-        return super(StockLocation, self.sudo()).name_get()
